@@ -49,7 +49,8 @@ class Graphql
         $data,
         array $query = [],
         array $extraHeaders = [],
-        ?int $tries = null
+        ?int $tries = null,
+        $payment = false
     ): HttpResponse {
         if (empty($data)) {
             throw new MissingArgumentException('Query missing');
@@ -66,7 +67,7 @@ class Graphql
         }
 
         return $this->client->post(
-            $this->getApiPath(),
+            ($payment == true ? $this->getPaymentApiPath() : $this->getApiPath()),
             $data,
             $extraHeaders,
             $query,
@@ -90,7 +91,8 @@ class Graphql
     public function proxy(
         string $data,
         array $extraHeaders = [],
-        ?int $tries = null
+        ?int $tries = null,
+        $payment = false
     ): HttpResponse {
         if (empty($data)) {
             throw new MissingArgumentException('Query missing');
@@ -100,7 +102,7 @@ class Graphql
         $extraHeaders[$accessTokenHeader] = $accessToken;
 
         return $this->client->post(
-            $this->getApiPath(),
+            ($payment == true ? $this->getPaymentApiPath() : $this->getApiPath()),
             $data,
             $extraHeaders,
             [],
@@ -117,6 +119,11 @@ class Graphql
     protected function getApiPath(): string
     {
         return 'admin/api/' . Context::$API_VERSION . '/graphql.json';
+    }
+
+    protected function getPaymentApiPath(): string
+    {
+        return 'payments_apps/api/' . Context::$API_VERSION . '/graphql.json';
     }
 
     /**
